@@ -2,28 +2,68 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rmutlproj/auth.dart';
 
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   HomePage({super.key});
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
 
+class _HomePageState extends State<HomePage> {
   final User? user = Auth().currentUser;
+  late final WebViewController webViewController;
+  int _selectedIndex = 0;
 
   Future<void> signOut() async {
     await Auth().signOut();
   }
 
-  Widget _title(){
-    return const Text('Firebase Auth');
+  @override
+  void initState() {
+    super.initState();
+
+    // สร้าง WebViewController สำหรับแสดงเว็บไซต์
+    PlatformWebViewControllerCreationParams params =
+        const PlatformWebViewControllerCreationParams();
+
+    if (WebViewPlatform.instance is WebKitWebViewPlatform) {
+      params = WebKitWebViewControllerCreationParams
+          .fromPlatformWebViewControllerCreationParams(params);
+    } else if (WebViewPlatform.instance is AndroidWebViewPlatform) {
+      params = AndroidWebViewControllerCreationParams
+          .fromPlatformWebViewControllerCreationParams(params);
+    }
+
+    webViewController = WebViewController.fromPlatformCreationParams(params);
+    webViewController.loadRequest(Uri.parse('https://www.rmutl.ac.th/'));
   }
 
-  Widget _userUid() {
-    return Text(user?.email ?? 'user email');
+  // ส่วนหัว: แสดงชื่อและปุ่มออกจากระบบ
+  Widget _userInfoBar() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(user?.email ?? 'User Email'),
+        ElevatedButton(onPressed: signOut, child: Text('Sign Out')),
+      ],
+    );
   }
 
-  Widget _signOutButton() {
-    return ElevatedButton(
-      onPressed: signOut,
-      child: const Text('Sign Out'),
+  // สลับเนื้อหาแต่ละ tab (ตอนนี้แสดง WebView ทุก tab)
+  Widget _getBody() {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: _userInfoBar(),
+        ),
+        Expanded(
+          child: WebViewWidget(controller: webViewController),
+        ),
+      ],
     );
   }
 
@@ -31,17 +71,36 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: _title(),
+        title: const Text('RMUTL WebView'),
       ),
-      body: Container(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            _userUid(),
-            const SizedBox(height: 20),
-            _signOutButton(),
-          ],
-        ),
+      body: _getBody(),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        indicatorColor: Colors.amber,
+        destinations: const <Widget>[
+          NavigationDestination(
+            selectedIcon: Icon(Icons.home),
+            icon: Icon(Icons.home_outlined),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Badge(child: Icon(Icons.notifications_sharp)),
+            label: 'Notifications',
+          ),
+          NavigationDestination(
+            icon: Badge(label: Text('2'), child: Icon(Icons.messenger_sharp)),
+            label: 'Messages',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.messenger_sharp),
+            label: 'Profile',
+          ),
+        ],
       ),
     );
   }

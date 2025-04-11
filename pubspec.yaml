@@ -21,6 +21,10 @@ dependencies:
   flutter_svg: ^1.0.3
   lottie: ^1.2.2
   font_awesome_flutter: ^9.2.0
+  
+  webview_flutter_android: ^4.3.4
+  webview_flutter_wkwebview: ^3.18.5
+  webview_flutter: ^4.2.2  
 
 
 dev_dependencies:
