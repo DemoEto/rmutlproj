@@ -25,6 +25,7 @@ dependencies:
   webview_flutter_android: ^4.3.4
   webview_flutter_wkwebview: ^3.18.5
   webview_flutter: ^4.2.2  
+  mobile_scanner: ^6.0.7
 
 
 dev_dependencies:

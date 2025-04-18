@@ -6,8 +6,11 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
+import 'package:rmutlproj/pages/qr_scanner_page.dart';
+import 'package:rmutlproj/pages/profile_page.dart';
+
 class HomePage extends StatefulWidget {
-  HomePage({super.key});
+  const HomePage({super.key});
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -30,11 +33,15 @@ class _HomePageState extends State<HomePage> {
         const PlatformWebViewControllerCreationParams();
 
     if (WebViewPlatform.instance is WebKitWebViewPlatform) {
-      params = WebKitWebViewControllerCreationParams
-          .fromPlatformWebViewControllerCreationParams(params);
+      params =
+          WebKitWebViewControllerCreationParams.fromPlatformWebViewControllerCreationParams(
+            params,
+          );
     } else if (WebViewPlatform.instance is AndroidWebViewPlatform) {
-      params = AndroidWebViewControllerCreationParams
-          .fromPlatformWebViewControllerCreationParams(params);
+      params =
+          AndroidWebViewControllerCreationParams.fromPlatformWebViewControllerCreationParams(
+            params,
+          );
     }
 
     webViewController = WebViewController.fromPlatformCreationParams(params);
@@ -56,13 +63,8 @@ class _HomePageState extends State<HomePage> {
   Widget _getBody() {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: _userInfoBar(),
-        ),
-        Expanded(
-          child: WebViewWidget(controller: webViewController),
-        ),
+        Padding(padding: const EdgeInsets.all(8.0), child: _userInfoBar()),
+        Expanded(child: WebViewWidget(controller: webViewController)),
       ],
     );
   }
@@ -70,16 +72,28 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('RMUTL WebView'),
-      ),
+      appBar: AppBar(title: const Text('RMUTL WebView')),
       body: _getBody(),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
+          if (index == 2) {
+            // สมมติ Scan เป็นปุ่มที่ 3
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const QRScannerPage()),
+            );
+          }if (index == 4) {
+            // สมมติ Scan เป็นปุ่มที่ 3
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProfileScreen()),
+            );
+          } else {
+            setState(() {
+              _selectedIndex = index;
+            });
+          }
         },
         indicatorColor: Colors.amber,
         destinations: const <Widget>[
@@ -93,11 +107,15 @@ class _HomePageState extends State<HomePage> {
             label: 'Notifications',
           ),
           NavigationDestination(
+            icon: Icon(Icons.qr_code_scanner),
+            label: 'Scan',
+          ),
+          NavigationDestination(
             icon: Badge(label: Text('2'), child: Icon(Icons.messenger_sharp)),
             label: 'Messages',
           ),
           NavigationDestination(
-            icon: Icon(Icons.messenger_sharp),
+            icon: Icon(Icons.person),
             label: 'Profile',
           ),
         ],

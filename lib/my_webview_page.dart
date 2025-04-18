@@ -3,6 +3,8 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 class MyWebViewPage extends StatefulWidget {
+  const MyWebViewPage({super.key});
+
   @override
   State<MyWebViewPage> createState() => _MyWebViewPageState();
 }
