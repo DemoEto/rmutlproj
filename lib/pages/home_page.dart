@@ -23,7 +23,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> signOut() async {
     await Auth().signOut();
   }
-
+  
   @override
   void initState() {
     super.initState();
@@ -72,7 +72,85 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('RMUTL WebView')),
+      appBar: AppBar(
+        title: const Text('RMUTL WebView'),
+        leading: Builder(
+          builder: (context) => // ปุ่ม 3 ขีด
+              IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              Scaffold.of(context).openDrawer(); // เปิด Drawer
+            },
+          ),
+        ),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'เมนู',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.check_box),
+              title: const Text('ระบบเช็คชื่อ'),
+              onTap: () {
+                Navigator.pop(context); // ปิด Drawer
+                Navigator.pushNamed(context, '/profile'); // ไปยังหน้าโปรไฟล์
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('ดูข้อมูลนักเรียน'),
+              onTap: () {
+                Navigator.pop(context); // ปิด Drawer
+                Navigator.pushNamed(context, '/profile'); // ไปยังหน้าโปรไฟล์
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.car_crash),
+              title: const Text('ติดตามสถานะรถโรงเรียน'),
+              onTap: () {
+                Navigator.pop(context); // ปิด Drawer
+                Navigator.pushNamed(context, '/profile'); // ไปยังหน้าโปรไฟล์
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.dashboard_customize_rounded),
+              title: const Text('ระบบส่งการบ้านและสั่งงานนักเรียน'),
+              onTap: () {
+                Navigator.pop(context); // ปิด Drawer
+                Navigator.pushNamed(context, '/profile'); // ไปยังหน้าโปรไฟล์
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('ตั้งค่า'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, '/settings');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('ออกจากระบบ'),
+              onTap: () async {
+                await Auth().signOut(); // logout
+                Navigator.of(context).pushReplacementNamed('/login');
+              },
+            ),
+          ],
+        ),
+      ),
       body: _getBody(),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,

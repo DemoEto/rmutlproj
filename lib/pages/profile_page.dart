@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 // TODO: add flutter_svg to pubspec.yaml
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:rmutlproj/auth.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
+
+  Future<void> signOut() async {
+    await Auth().signOut();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +47,11 @@ class ProfileScreen extends StatelessWidget {
             ProfileMenu(
               text: "Log Out",
               icon: "assets/icons/Log out.svg",
-              press: () {},
+              press: () async {
+                await signOut();
+                // สมมุติว่าหลัง logout แล้วจะกลับไปหน้า Login
+                Navigator.of(context).pushReplacementNamed('/login_register_page');
+              },
             ),
           ],
         ),
@@ -51,9 +61,7 @@ class ProfileScreen extends StatelessWidget {
 }
 
 class ProfilePic extends StatelessWidget {
-  const ProfilePic({
-    Key? key,
-  }) : super(key: key);
+  const ProfilePic({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -65,8 +73,9 @@ class ProfilePic extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           const CircleAvatar(
-            backgroundImage:
-                NetworkImage("https://i.postimg.cc/0jqKB6mS/Profile-Image.png"),
+            backgroundImage: NetworkImage(
+              "https://i.postimg.cc/0jqKB6mS/Profile-Image.png",
+            ),
           ),
           Positioned(
             right: -16,
@@ -87,7 +96,7 @@ class ProfilePic extends StatelessWidget {
                 child: SvgPicture.string(cameraIcon),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -113,30 +122,23 @@ class ProfileMenu extends StatelessWidget {
         style: TextButton.styleFrom(
           foregroundColor: const Color(0xFFFF7643),
           padding: const EdgeInsets.all(20),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
           backgroundColor: const Color(0xFFF5F6F9),
         ),
         onPressed: press,
         child: Row(
           children: [
-            SvgPicture.asset(
-              icon,
-              width: 22,
-            ),
+            SvgPicture.asset(icon, width: 22),
             const SizedBox(width: 20),
             Expanded(
               child: Text(
                 text,
-                style: const TextStyle(
-                  color: Color(0xFF757575),
-                ),
+                style: const TextStyle(color: Color(0xFF757575)),
               ),
             ),
-            const Icon(
-              Icons.arrow_forward_ios,
-              color: Color(0xFF757575),
-            ),
+            const Icon(Icons.arrow_forward_ios, color: Color(0xFF757575)),
           ],
         ),
       ),
