@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:rmutlproj/auth.dart';
 
 import 'package:webview_flutter/webview_flutter.dart';
@@ -8,6 +9,9 @@ import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 import 'package:rmutlproj/pages/qr_scanner_page.dart';
 import 'package:rmutlproj/pages/profile_page.dart';
+
+import 'package:rmutlproj/firebase_seed.dart';
+import 'package:rmutlproj/pages/attendeance_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -23,7 +27,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> signOut() async {
     await Auth().signOut();
   }
-  
+
   @override
   void initState() {
     super.initState();
@@ -69,88 +73,93 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _drawermenu() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          const DrawerHeader(
+            decoration: BoxDecoration(color: Colors.blue),
+            child: Text(
+              'เมนู',
+              style: TextStyle(color: Colors.white, fontSize: 24),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.check_box),
+            title: const Text('ระบบเช็คชื่อ'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AttendancePage(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text('ดูข้อมูลนักเรียน'),
+            onTap: () {
+              Navigator.pop(context); // ปิด Drawer
+              Navigator.pushNamed(context, '/profile'); // ไปยังหน้าโปรไฟล์
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.car_crash),
+            title: const Text('ติดตามสถานะรถโรงเรียน'),
+            onTap: () {
+              Navigator.pop(context); // ปิด Drawer
+              Navigator.pushNamed(context, '/profile'); // ไปยังหน้าโปรไฟล์
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.dashboard_customize_rounded),
+            title: const Text('ระบบส่งการบ้านและสั่งงานนักเรียน'),
+            onTap: () {
+              Navigator.pop(context); // ปิด Drawer
+              Navigator.pushNamed(context, '/profile'); // ไปยังหน้าโปรไฟล์
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('ตั้งค่า'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/settings');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text('ออกจากระบบ'),
+            onTap: () async {
+              await Auth().signOut(); // logout
+              Navigator.of(context).pushReplacementNamed('/login');
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('RMUTL WebView'),
         leading: Builder(
-          builder: (context) => // ปุ่ม 3 ขีด
-              IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () {
-              Scaffold.of(context).openDrawer(); // เปิด Drawer
-            },
-          ),
+          builder:
+              (context) => // ปุ่ม 3 ขีด
+                  IconButton(
+                icon: const Icon(Icons.menu),
+                onPressed: () {
+                  Scaffold.of(context).openDrawer(); // เปิด Drawer
+                },
+              ),
         ),
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text(
-                'เมนู',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.check_box),
-              title: const Text('ระบบเช็คชื่อ'),
-              onTap: () {
-                Navigator.pop(context); // ปิด Drawer
-                Navigator.pushNamed(context, '/profile'); // ไปยังหน้าโปรไฟล์
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('ดูข้อมูลนักเรียน'),
-              onTap: () {
-                Navigator.pop(context); // ปิด Drawer
-                Navigator.pushNamed(context, '/profile'); // ไปยังหน้าโปรไฟล์
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.car_crash),
-              title: const Text('ติดตามสถานะรถโรงเรียน'),
-              onTap: () {
-                Navigator.pop(context); // ปิด Drawer
-                Navigator.pushNamed(context, '/profile'); // ไปยังหน้าโปรไฟล์
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.dashboard_customize_rounded),
-              title: const Text('ระบบส่งการบ้านและสั่งงานนักเรียน'),
-              onTap: () {
-                Navigator.pop(context); // ปิด Drawer
-                Navigator.pushNamed(context, '/profile'); // ไปยังหน้าโปรไฟล์
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('ตั้งค่า'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/settings');
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('ออกจากระบบ'),
-              onTap: () async {
-                await Auth().signOut(); // logout
-                Navigator.of(context).pushReplacementNamed('/login');
-              },
-            ),
-          ],
-        ),
-      ),
+      drawer: _drawermenu(),
       body: _getBody(),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
@@ -161,7 +170,8 @@ class _HomePageState extends State<HomePage> {
               context,
               MaterialPageRoute(builder: (context) => const QRScannerPage()),
             );
-          }if (index == 4) {
+          }
+          if (index == 4) {
             // สมมติ Scan เป็นปุ่มที่ 3
             Navigator.push(
               context,
@@ -192,11 +202,14 @@ class _HomePageState extends State<HomePage> {
             icon: Badge(label: Text('2'), child: Icon(Icons.messenger_sharp)),
             label: 'Messages',
           ),
-          NavigationDestination(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+          NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          await seedSampleData();
+        },
+        child: FaIcon(FontAwesomeIcons.database),
       ),
     );
   }
