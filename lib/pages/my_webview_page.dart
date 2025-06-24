@@ -21,21 +21,41 @@ class _MyWebViewPageState extends State<MyWebViewPage> {
     PlatformWebViewControllerCreationParams params =
         const PlatformWebViewControllerCreationParams();
 
+    late final PlatformWebViewControllerCreationParams finalParams;
+
     if (WebViewPlatform.instance is WebKitWebViewPlatform) {
       // ถ้าเป็น iOS
-      params = WebKitWebViewControllerCreationParams
-          .fromPlatformWebViewControllerCreationParams(params);
+      finalParams =
+          WebKitWebViewControllerCreationParams.fromPlatformWebViewControllerCreationParams(
+            params,
+          );
     } else if (WebViewPlatform.instance is AndroidWebViewPlatform) {
       // ถ้าเป็น Android
-      params = AndroidWebViewControllerCreationParams
-          .fromPlatformWebViewControllerCreationParams(params);
+      finalParams =
+          AndroidWebViewControllerCreationParams.fromPlatformWebViewControllerCreationParams(
+            params,
+          );
+    } else {
+      finalParams = params;
     }
 
     // สร้าง WebViewController
-    webViewController = WebViewController.fromPlatformCreationParams(params);
-
-    // สั่งให้โหลดเว็บไซต์
-    webViewController.loadRequest(Uri.parse('https://www.rmutl.ac.th/'));
+  webViewController = WebViewController.fromPlatformCreationParams(finalParams)
+    ..setJavaScriptMode(JavaScriptMode.unrestricted)
+    ..setNavigationDelegate(
+      NavigationDelegate(
+        onPageFinished: (url) {
+          // inject JavaScript เพื่อลบ cookie popup
+          webViewController.runJavaScript('''
+            var cookieBanner = document.querySelector(".cookie-banner, .cookie-consent, #cookie-popup");
+            if (cookieBanner) {
+              cookieBanner.style.display = "none";
+            }
+          ''');
+        },
+      ),
+    )
+    ..loadRequest(Uri.parse('https://www.rmutl.ac.th/'));
   }
 
   @override

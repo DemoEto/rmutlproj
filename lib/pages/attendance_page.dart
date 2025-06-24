@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:rmutlproj/models/Student.dart';
+import 'package:rmutlproj/models/student_addtendance.dart';
 
 class AttendancePage extends StatefulWidget {
   const AttendancePage({Key? key}) : super(key: key);
@@ -13,8 +13,8 @@ class _AttendancePageState extends State<AttendancePage> {
   final TextEditingController _searchController = TextEditingController();
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
-  List<Student> students = [];
-  List<Student> filteredStudents = [];
+  List<StudentAttendance> students = [];
+  List<StudentAttendance> filteredStudents = [];
   String? selectedClass;
 
   List<String> availableClasses =
@@ -41,8 +41,8 @@ class _AttendancePageState extends State<AttendancePage> {
 
   void _searchStudent(String query) {
     final result =
-        students.where((student) {
-          return student.name.contains(query);
+        students.where((StudentAttendance) {
+          return StudentAttendance.name.contains(query);
         }).toList();
 
     setState(() {
@@ -57,13 +57,13 @@ class _AttendancePageState extends State<AttendancePage> {
             .where('class_name', isEqualTo: className)
             .get();
 
-    List<Student> loadedStudents =
+    List<StudentAttendance> loadedStudents =
         snapshot.docs.map((doc) {
           String fullName =
               "${doc.data()['fname'] ?? ''} ${doc.data()['lname'] ?? ''}"
                   .trim();
           // <- ประกอบชื่อ
-          return Student(
+          return StudentAttendance(
             id: doc.id,
             name: fullName,
             status: AttendanceStatus.absent, // หรือกำหนด default อื่นก็ได้
@@ -78,8 +78,8 @@ class _AttendancePageState extends State<AttendancePage> {
 
   void _markAllPresent() {
     setState(() {
-      for (var student in students) {
-        student.status = AttendanceStatus.present;
+      for (var StudentAttendance in students) {
+        StudentAttendance.status = AttendanceStatus.present;
       }
       filteredStudents = students;
     });
@@ -94,11 +94,11 @@ class _AttendancePageState extends State<AttendancePage> {
 
     final batch = db.batch(); // ใช้ batch เพื่อเขียนหลายอันพร้อมกัน
 
-    for (var student in students) {
+    for (var StudentAttendance in students) {
       final attendanceRef =
           db
               .collection('Students')
-              .doc(student.id)
+              .doc(StudentAttendance.id)
               .collection('Attendance')
               .doc(); // สร้าง doc id อัตโนมัติ
 
@@ -106,7 +106,7 @@ class _AttendancePageState extends State<AttendancePage> {
         'subject_id': 'รหัสรายวิชา', // หรือเปลี่ยนให้รับค่าจากหน้าจอ
         'date': formattedDate,
         'time': formattedTime,
-        'status': _getStatusText(student.status),
+        'status': _getStatusText(StudentAttendance.status),
         'note': '', // เผื่อใส่หมายเหตุในอนาคต
       });
     }
@@ -135,22 +135,22 @@ class _AttendancePageState extends State<AttendancePage> {
     }
   }
 
-  void _selectStatus(Student student, AttendanceStatus status) {
+  void _selectStatus(StudentAttendance StudentAttendance, AttendanceStatus status) {
     setState(() {
-      student.status = status;
+      StudentAttendance.status = status;
     });
   }
 
   Widget _buildStatusButton(
-    Student student,
+    StudentAttendance StudentAttendance,
     AttendanceStatus status,
     String label,
     Color color,
   ) {
-    bool isSelected = student.status == status;
+    bool isSelected = StudentAttendance.status == status;
     return Expanded(
       child: GestureDetector(
-        onTap: () => _selectStatus(student, status),
+        onTap: () => _selectStatus(StudentAttendance, status),
         child: Container(
           margin: EdgeInsets.symmetric(horizontal: 4),
           padding: EdgeInsets.symmetric(vertical: 8),
@@ -262,7 +262,7 @@ class _AttendancePageState extends State<AttendancePage> {
                       : ListView.builder(
                         itemCount: filteredStudents.length,
                         itemBuilder: (context, index) {
-                          final student = filteredStudents[index];
+                          final StudentAttendance = filteredStudents[index];
                           return Card(
                             margin: const EdgeInsets.symmetric(vertical: 6),
                             child: Padding(
@@ -271,7 +271,7 @@ class _AttendancePageState extends State<AttendancePage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    student.name,
+                                    StudentAttendance.name,
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -281,25 +281,25 @@ class _AttendancePageState extends State<AttendancePage> {
                                   Row(
                                     children: [
                                       _buildStatusButton(
-                                        student,
+                                        StudentAttendance,
                                         AttendanceStatus.present,
                                         'มาเรียน',
                                         Colors.green,
                                       ),
                                       _buildStatusButton(
-                                        student,
+                                        StudentAttendance,
                                         AttendanceStatus.absent,
                                         'ขาดเรียน',
                                         Colors.red,
                                       ),
                                       _buildStatusButton(
-                                        student,
+                                        StudentAttendance,
                                         AttendanceStatus.leave,
                                         'ลา',
                                         Colors.orange,
                                       ),
                                       _buildStatusButton(
-                                        student,
+                                        StudentAttendance,
                                         AttendanceStatus.late,
                                         'มาสาย',
                                         Colors.blue,

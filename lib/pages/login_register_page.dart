@@ -3,6 +3,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../auth.dart';
 
+
+
+
 void main() => runApp(
   const MaterialApp(
     debugShowCheckedModeBanner: false,
@@ -32,6 +35,25 @@ class _LoginPageState extends State<LoginPage> {
         email: _controllerEmail.text,
         password: _controllerPassword.text,
       );
+
+      
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final String uid = user.uid;
+      final String prefix = uid.substring(0, 1).toLowerCase();
+
+      if (prefix == 't') {
+        Navigator.pushReplacementNamed(context, '/teacherAttendanceView');
+      } else if (prefix == 's') {
+        Navigator.pushReplacementNamed(context, '/studentAttendanceView');
+      } else if (prefix == 'p') {
+        Navigator.pushReplacementNamed(context, '/parentAttendanceView');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('ไม่สามารถระบุประเภทผู้ใช้จาก UID ได้')),
+        );
+      }
+    }
     } on FirebaseAuthException catch (e) {
       print('Firebase Auth Error: ${e.code} - ${e.message}');
       setState(() {

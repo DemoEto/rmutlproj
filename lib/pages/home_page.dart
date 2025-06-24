@@ -11,7 +11,11 @@ import 'package:rmutlproj/pages/qr_scanner_page.dart';
 import 'package:rmutlproj/pages/profile_page.dart';
 
 import 'package:rmutlproj/firebase_seed.dart';
-import 'package:rmutlproj/pages/attendeance_page.dart';
+import 'package:rmutlproj/pages/attendance_page.dart';
+
+import 'package:rmutlproj/pages/attendance/teacher_attendance_view.dart';
+import 'package:rmutlproj/pages/attendance/student_attendance_view.dart';
+import 'package:rmutlproj/pages/attendance/parent_attendance_view.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -31,7 +35,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-
+    _navigateByRole();
     // สร้าง WebViewController สำหรับแสดงเว็บไซต์
     PlatformWebViewControllerCreationParams params =
         const PlatformWebViewControllerCreationParams();
@@ -50,6 +54,38 @@ class _HomePageState extends State<HomePage> {
 
     webViewController = WebViewController.fromPlatformCreationParams(params);
     webViewController.loadRequest(Uri.parse('https://www.rmutl.ac.th/'));
+  }
+
+  void _navigateByRole() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final uid = user.uid;
+    final prefix = uid.substring(0, 1).toLowerCase();
+
+    // Delay ให้ทันการ build ก่อน Navigator ใช้งาน
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (prefix == 't') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) =>  TeacherAttendanceView()),
+        );
+      } else if (prefix == 's') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => StudentAttendanceView(studentId: uid)),
+        );
+      } else if (prefix == 'p') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => ParentAttendanceView(parentId: uid)),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("ไม่สามารถระบุประเภทผู้ใช้ได้")),
+        );
+      }
+    });
   }
 
   // ส่วนหัว: แสดงชื่อและปุ่มออกจากระบบ
@@ -92,20 +128,22 @@ class _HomePageState extends State<HomePage> {
               Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => AttendancePage(),
-                ),
+                MaterialPageRoute(builder: (context) => AttendancePage()),
               );
             },
           ),
           ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('ดูข้อมูลนักเรียน'),
+            leading: const Icon(Icons.calendar_month),
+            title: const Text('ข้อมูลการมาเรียนรายเดือน'),
             onTap: () {
               Navigator.pop(context); // ปิด Drawer
-              Navigator.pushNamed(context, '/profile'); // ไปยังหน้าโปรไฟล์
+              Navigator.pushNamed(
+                context,
+                '/attendance-report',
+              ); // ชื่อ route ที่จะไป
             },
           ),
+
           ListTile(
             leading: const Icon(Icons.car_crash),
             title: const Text('ติดตามสถานะรถโรงเรียน'),
